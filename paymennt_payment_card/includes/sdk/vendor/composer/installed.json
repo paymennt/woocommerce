@@ -1,0 +1,59 @@
+{
+    "packages": [
+        {
+            "name": "paymennt/paymennt-php",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paymennt/paymennt-php.git",
+                "reference": "ecec910af72c42fefe2f2ed8ad09c190b0ee4b14"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paymennt/paymennt-php/zipball/ecec910af72c42fefe2f2ed8ad09c190b0ee4b14",
+                "reference": "ecec910af72c42fefe2f2ed8ad09c190b0ee4b14",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "php": ">=5.6.0"
+            },
+            "time": "2022-06-09T08:09:45+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Paymennt\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bashar Saleh",
+                    "email": "developer@paymennt.com"
+                }
+            ],
+            "description": "PHP client for the PAYMENNT api",
+            "homepage": "https://www.paymennt.com",
+            "keywords": [
+                "api",
+                "paymennt",
+                "payment gateway",
+                "payment processing"
+            ],
+            "support": {
+                "issues": "https://github.com/paymennt/paymennt-php/issues",
+                "source": "https://github.com/paymennt/paymennt-php/tree/main"
+            },
+            "install-path": "../paymennt/paymennt-php"
+        }
+    ],
+    "dev": true,
+    "dev-package-names": []
+}

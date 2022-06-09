@@ -1,0 +1,23 @@
+.wc-credit-card-form body {
+  text-align: center;
+}
+
+.wc-credit-card-form {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card-frame {
+  min-height: 160px;
+}
+
+.error-message {
+  color: red;
+  font-weight: 600;
+}
+
+.info-message {
+  color: green;
+  font-weight: 600;
+}
