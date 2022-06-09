@@ -1,6 +1,6 @@
 <?php
 
-class PointCheckout_Card_Utils extends PointCheckout_Card_Parent
+class Paymennt_Card_Utils extends Paymennt_Card_Parent
 {
 
     private $pcConfig;
@@ -8,8 +8,8 @@ class PointCheckout_Card_Utils extends PointCheckout_Card_Parent
     public function __construct()
     {
         parent::__construct();
-        $this->pcOrder = new PointCheckout_Card_Order();
-        $this->pcConfig = PointCheckout_Card_Config::getInstance();
+        $this->pcOrder = new Paymennt_Card_Order();
+        $this->pcConfig = Paymennt_Card_Config::getInstance();
     }
 
     public function apiCall($url, $body)
@@ -43,28 +43,28 @@ class PointCheckout_Card_Utils extends PointCheckout_Card_Parent
     public function log($messages)
     {
         $logger = wc_get_logger();
-        $logger->error($messages, 'pointcheckout_card');
+        $logger->error($messages, 'paymennt_card');
     }
 
     public function getApiBaseUrl()
     {
         if ($this->pcConfig->isLiveMode()) {
-            return 'https://api.pointcheckout.com/mer/v2.0/';
+            return 'https://api.paymennt.com/mer/v2.0/';
         } elseif ($this->pcConfig->isStagingMode()) {
-            return 'https://api.staging.pointcheckout.com/mer/v2.0/';
+            return 'https://api.staging.paymennt.com/mer/v2.0/';
         } else {
-            return 'https://api.test.pointcheckout.com/mer/v2.0/';
+            return 'https://api.test.paymennt.com/mer/v2.0/';
         }
     }
 
     public function getAdminUrl()
     {
         if ($this->pcConfig->isLiveMode()) {
-            return 'https://admin.pointcheckout.com';
+            return 'https://admin.paymennt.com';
         } elseif ($this->pcConfig->isStagingMode()) {
-            return 'https://admin.staging.pointcheckout.com';
+            return 'https://admin.staging.paymennt.com';
         } else {
-            return 'https://admin.test.pointcheckout.com';
+            return 'https://admin.test.paymennt.com';
         }
     }
 }

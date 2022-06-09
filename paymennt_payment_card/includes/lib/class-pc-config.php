@@ -1,6 +1,6 @@
 <?php
 
-class PointCheckout_Card_Config extends PointCheckout_Card_Parent
+class Paymennt_Card_Config extends Paymennt_Card_Parent
 {
 
     private static $instance;
@@ -13,6 +13,8 @@ class PointCheckout_Card_Config extends PointCheckout_Card_Parent
     private $allowUserSpecific;
     private $specific_uesr_roles;
     private $new_order_status;
+    private $payment_type;
+    private $public_key;
     public $description;
     public $title;
 
@@ -34,6 +36,8 @@ class PointCheckout_Card_Config extends PointCheckout_Card_Parent
         $this->new_order_status                      = $this->_getShoppingCartConfig('new_order_status');
         $this->description                           = $this->_getShoppingCartConfig('description');
         $this->title                                 = $this->_getShoppingCartConfig('title');
+        $this->payment_type                          = $this->_getShoppingCartConfig('payment_type');
+        $this->public_key                            = $this->_getShoppingCartConfig('public_key');
     }
 
     /**
@@ -42,7 +46,7 @@ class PointCheckout_Card_Config extends PointCheckout_Card_Parent
     public static function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new PointCheckout_Card_Config();
+            self::$instance = new Paymennt_Card_Config();
         }
         return self::$instance;
     }
@@ -164,5 +168,15 @@ class PointCheckout_Card_Config extends PointCheckout_Card_Parent
             return "Card";
         }
         return $this->title;
+    }
+
+    public function getPublicKey()
+    {
+        return $this->public_key;
+    }
+
+    public function isFramePayment()
+    {
+        return $this->payment_type == 1 ? true : false;
     }
 }

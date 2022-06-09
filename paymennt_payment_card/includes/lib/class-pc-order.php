@@ -1,6 +1,6 @@
 <?php
 
-class PointCheckout_Card_Order extends PointCheckout_Card_Parent
+class Paymennt_Card_Order extends Paymennt_Card_Parent
 {
 
     private $order = array();
