@@ -2,7 +2,7 @@
 
 /* Plugin Name: Paymennt Card Payment
  * Description: Have your customers pay with credit or debit cards via Paymennt
- * Version:     3.0.0
+ * Version:     3.0.1
  * Author:      Paymennt
  * Author URI:  https://docs.paymennt.com/docs/payment/ecomm/woocommerce
  */

@@ -1,8 +1,8 @@
 === Plugin Name ===
 Plugin Name: Paymennt Card Payment
-Tags: v3.0.0
+Tags: v3.0.1
 Tested up to: 6.0
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
