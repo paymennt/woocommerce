@@ -8,7 +8,7 @@
  * You should have received a copy of the GNU General Public License along with Paymennt Card Payment. If not, see <https://www.gnu.org/licenses/>.
  */
 
-define('PC_CARD_EXT_VERSION', 'WooCommerce-Card-2.1.0');
+define('PC_CARD_EXT_VERSION', 'WooCommerce-Card-3.0.1');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
 class Paymennt_Card_Payment extends Paymennt_Card_Parent
@@ -67,6 +67,13 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         if(!$request->totals->subtotal ||  $request->totals->subtotal <= 0) {
             $request->totals->subtotal =  $this->pcOrder->getTotal();
         }
+
+        try{
+            $request->extVersion = PC_CARD_EXT_VERSION;
+            $request->ecommerce = 'WordPress ' . $this->get_wp_version() . ', WooCommerce ' . $this->wpbo_get_woo_version_number();
+        } catch (\Throwable $e) {
+            // NOTHING TO DO 
+        }
         
         // CUSTOMER
         $request->customer = new \Paymennt\model\Customer(); // required
@@ -74,7 +81,6 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         $request->customer->lastName =  $order->get_billing_last_name();// customer last name
         $request->customer->email =  $order->get_billing_email(); // customer email address
         $request->customer->phone =  $order->get_billing_phone(); // customer email address
-        //$request->customer->reference = ""; // customer refernece in your system
         
         $request->billingAddress = new \Paymennt\model\Address(); // required
         $request->billingAddress->name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();// name of person at billing address
