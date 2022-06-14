@@ -1,4 +1,13 @@
 <?php
+
+/*Copyright 2022 Paymennt */
+
+/*This file is part of Paymennt Card Payment.
+ * Paymennt Card Payment is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * Paymennt Card Payment is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with Paymennt Card Payment. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 require_once dirname(__FILE__) . '/lib/index.php';
 
 class WC_Gateway_Paymennt_Card extends Paymennt_Card_Parent
@@ -302,9 +311,9 @@ class WC_Gateway_Paymennt_Card extends Paymennt_Card_Parent
         
     if ( !$this->config->isFramePayment() ) {
         $description = $this->get_description();
-        if ( $this->description ) {
+        if ( $description ) {
             // display the description with <p> tags etc.
-            echo wpautop( wp_kses_post( $this->description ) );
+            echo wpautop( wp_kses_post( $description ) );
         }
     }
 
@@ -340,64 +349,69 @@ class WC_Gateway_Paymennt_Card extends Paymennt_Card_Parent
         $failedPaymentTryAgainLater = 'Failed to process payment please try again later';
 
         if ( $this->config->isFramePayment() ) {
-            $Token=$_POST['paymentToken'];
+            $Token=sanitize_text_field($_POST['paymentToken']);
+            if(!empty( $Token))
+            {
+                try {
 
-            try {
-
-                $result = $this->paymentService->postTokenOrderToPaymennt($_POST['paymentToken']);
-                
-                WC()->session->set('checkoutId', $result->checkoutDetails->id);
-                $note = $this->paymentService->getOrderHistoryMessage($result->id, 0, $result->status, '');
-                $order->add_order_note($note);
-          
-                if ($result->status=="REDIRECT")
-                {
-                    return array(
-                        'result' => 'success',
-                        'redirect' => $result->redirectUrl
-                    );
-                }
-                else if ($result->status=="CAPTURED")
-                {
-                    $order->payment_complete();
-                    WC()->session->set('refresh_totals', true);
-                    $redirectUrl = $this->get_return_url($order);
-                    return array(
-                        'result' => 'success',
-                        'redirect' => $redirectUrl
-                    );       
-                }
-                else if ($result->status=="PENDING" || $result->status=="AUTHORIZED")
-                {
-                    $checkoutId= $result->checkoutDetails->id;
+                    $result = $this->paymentService->postTokenOrderToPaymennt($Token);
                     
-                    sleep(50);
-                    $success = $this->paymentService->checkPaymentStatusToken($checkoutId);
-                    if ($success['success']) {
+                    WC()->session->set('checkoutId', $result->checkoutDetails->id);
+                    $note = $this->paymentService->getOrderHistoryMessage($result->id, 0, $result->status, '');
+                    $order->add_order_note($note);
+            
+                    if ($result->status=="REDIRECT")
+                    {
+                        return array(
+                            'result' => 'success',
+                            'redirect' => $result->redirectUrl
+                        );
+                    }
+                    else if ($result->status=="CAPTURED")
+                    {
                         $order->payment_complete();
                         WC()->session->set('refresh_totals', true);
                         $redirectUrl = $this->get_return_url($order);
                         return array(
                             'result' => 'success',
                             'redirect' => $redirectUrl
-                        );
-                    } 
-                    else {
-                        wc_add_notice(__('The payment could not be confirmed yet, contact us if amount is deducted.'), 'error');
+                        );       
                     }
-                }
-                else
-                {
-                    if (!empty($result->responseMessage))
-                        wc_add_notice(__($result->responseMessage), 'error');
+                    else if ($result->status=="PENDING" || $result->status=="AUTHORIZED")
+                    {
+                        $checkoutId= $result->checkoutDetails->id;
+                        
+                        sleep(50);
+                        $success = $this->paymentService->checkPaymentStatusToken($checkoutId);
+                        if ($success['success']) {
+                            $order->payment_complete();
+                            WC()->session->set('refresh_totals', true);
+                            $redirectUrl = $this->get_return_url($order);
+                            return array(
+                                'result' => 'success',
+                                'redirect' => $redirectUrl
+                            );
+                        } 
+                        else {
+                            wc_add_notice(__('The payment could not be confirmed yet, contact us if amount is deducted.'), 'error');
+                        }
+                    }
                     else
-                        wc_add_notice(__($failedPaymentTryAgainLater), 'error');
+                    {
+                        if (!empty($result->responseMessage))
+                            wc_add_notice(__($result->responseMessage), 'error');
+                        else
+                            wc_add_notice(__($failedPaymentTryAgainLater), 'error');
+                    }
+                } 
+                catch(Exception $e) {
+                    $this->pcUtils->log('Failed to initiate card payment using Paymennt, message : ' . $e->getMessage());
+                    wc_add_notice(__($failedPaymentTryAgainLater), 'error');
                 }
-            } 
-            catch(Exception $e) {
+            }
+            else{
                 $this->pcUtils->log('Failed to initiate card payment using Paymennt, message : ' . $e->getMessage());
-                echo 'Message: ' .$e->getMessage();
-                wc_add_notice(__($failedPaymentTryAgainLater), 'error');
+                    wc_add_notice(__($failedPaymentTryAgainLater), 'error');
             }
         }
         else{
@@ -416,7 +430,6 @@ class WC_Gateway_Paymennt_Card extends Paymennt_Card_Parent
             }
             catch(Exception $e) {
                 $this->pcUtils->log('Failed to initiate card payment using Paymennt, message : ' . $e->getMessage());
-                echo 'Message: ' .$e->getMessage();
                 wc_add_notice(__($failedPaymentTryAgainLater), 'error');
             }
         }
@@ -438,7 +451,7 @@ class WC_Gateway_Paymennt_Card extends Paymennt_Card_Parent
             $order->update_status('cancelled');
             wc_add_notice(__('Failed to process payment please try again later'), 'error');
         }
-        echo '<script>window.top.location.href = "' . $redirectUrl . '"</script>';
+        echo '<script>window.top.location.href = "' . esc_url($redirectUrl). '"</script>';
         exit;
     }
 }
