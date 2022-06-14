@@ -311,7 +311,7 @@ class WC_Gateway_Paymennt_Card extends Paymennt_Card_Parent
         
     if ( !$this->config->isFramePayment() ) {
         $description = $this->get_description();
-        if ( $this->description ) {
+        if ( $description ) {
             // display the description with <p> tags etc.
             echo wpautop( wp_kses_post( $description ) );
         }
