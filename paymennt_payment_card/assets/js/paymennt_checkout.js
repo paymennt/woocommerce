@@ -88,16 +88,11 @@ var successCallback = function () {
   return true;
 };
 
-var errorCallback = function (data) {
-  console.log(data);
-  return false;
-};
-
 jQuery(document).on("TokenReceived", function (e, eventInfo) {
   var paymentToken = document.getElementById("payment-token");
   if (paymentToken.value != "") {
     successCallback();
   } else {
-    errorCallback(paymentToken.value);
+    return false;
   }
 });

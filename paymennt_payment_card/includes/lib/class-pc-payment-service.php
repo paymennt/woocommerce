@@ -1,4 +1,13 @@
 <?php
+
+/*Copyright 2022 Paymennt */
+
+/*This file is part of Paymennt Card Payment.
+ * Paymennt Card Payment is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * Paymennt Card Payment is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with Paymennt Card Payment. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 define('PC_CARD_EXT_VERSION', 'WooCommerce-Card-2.1.0');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 

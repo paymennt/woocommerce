@@ -1,5 +1,13 @@
 <?php
 
+/*Copyright 2022 Paymennt */
+
+/*This file is part of Paymennt Card Payment.
+ * Paymennt Card Payment is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+ * Paymennt Card Payment is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License along with Paymennt Card Payment. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 class Paymennt_Card_Utils extends Paymennt_Card_Parent
 {
 
@@ -10,34 +18,6 @@ class Paymennt_Card_Utils extends Paymennt_Card_Parent
         parent::__construct();
         $this->pcOrder = new Paymennt_Card_Order();
         $this->pcConfig = Paymennt_Card_Config::getInstance();
-    }
-
-    public function apiCall($url, $body)
-    {
-        try {
-            $headers = array(
-                'Content-Type: application/json',
-                'X-PointCheckout-Api-Key:' . $this->pcConfig->getApiKey(),
-                'X-PointCheckout-Api-Secret:' . $this->pcConfig->getApiSecret()
-            );
-
-            $_BASE_URL = $this->getApiBaseUrl() . $url;
-
-            $ch = curl_init($_BASE_URL);
-
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-            if (!is_null($body)) {
-                curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
-            }
-
-            $response = curl_exec($ch);
-        } catch (Exception $e) {
-            $this->log('Failed to connect call PointChckout API: ' . $e->getMessage());
-            throw $e;
-        }
-
-        return json_decode($response);
     }
 
     public function log($messages)
