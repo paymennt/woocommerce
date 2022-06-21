@@ -1,6 +1,6 @@
 <?php 
 
-class Paymennt_Config extends Paymennt_Gateway_Parent
+class Paymennt_Config extends Paymennt_Card_Parent
 {
 
     private static $instance;

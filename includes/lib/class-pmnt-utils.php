@@ -1,6 +1,6 @@
 <?php
  
-class Paymennt_Utils extends Paymennt_Gateway_Parent
+class Paymennt_Utils extends Paymennt_Card_Parent
 {
 
     private $pmntConfig;
@@ -15,7 +15,7 @@ class Paymennt_Utils extends Paymennt_Gateway_Parent
     public function log($messages)
     {
         $logger = wc_get_logger();
-        $logger->error($messages, 'paymennt_gateway');
+        $logger->error($messages, 'paymennt_card');
     }
 
     public function getApiBaseUrl()

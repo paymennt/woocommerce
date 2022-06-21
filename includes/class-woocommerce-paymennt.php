@@ -3,7 +3,7 @@
 
 require_once dirname(__FILE__) . '/lib/index.php';
 
-class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
+class WC_Card_Paymennt extends Paymennt_Card_Parent
 {
     public $paymentService;
     public $config;
@@ -24,7 +24,7 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
         $this->method_description = __('Have your customers pay with credit or debit cards via Paymennt', 'woocommerce');
         $this->title = Paymennt_Config::getInstance()->getTitle() ;
         $this->description = Paymennt_Config::getInstance()->getDescription();
-        $this->paymentService = Paymennt_Gateway_Payment::getInstance();
+        $this->paymentService = Paymennt_Card_Payment::getInstance();
         $this->config = Paymennt_Config::getInstance();
         $this->icon = plugin_dir_url(__FILE__) . '../assets/images/mc-visa-network-logos.png';
 
@@ -33,22 +33,22 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
 
         // Save options
         add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
-        add_action('woocommerce_wc_gateway_paymennt_process_response', array($this, 'process_response'));
+        add_action('woocommerce_wc_card_paymennt_process_response', array($this, 'process_response'));
 
         //Custom JS and CSS
         if ( $this->config->isFramePayment() ) {
-            add_action( 'wp_enqueue_scripts', array( $this, 'payment_gateway_styles' ) );
-            add_action( 'wp_footer', array( $this, 'payment_gateway_scripts' ) );
+            add_action( 'wp_enqueue_scripts', array( $this, 'add_paymennt_card_styles' ) );
+            add_action( 'wp_footer', array( $this, 'add_paymennt_card_scripts' ) );
         }   
     }
 
-    function payment_gateway_scripts() {
+    function add_paymennt_card_scripts() {
         
         wp_enqueue_script( 'paymennt-frame-js',  'https://pay.paymennt.com/static/js/paymennt-frames.js', true );
         wp_enqueue_script( 'paymennt-checkout-script', plugins_url( '/../assets/js/paymennt_checkout.js', __FILE__ ), true );
     }
 
-    function payment_gateway_styles() {
+    function add_paymennt_card_styles() {
        
         wp_enqueue_style( 'paymennt-checkout-styles', plugins_url( '/../assets/css/styles.css', __FILE__ ) );
     }
@@ -59,7 +59,7 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
         $settings = $this->settings;
         $settings['enabled']  = isset($settings['enabled']) ? $settings['enabled'] : 'no';
 
-        update_option('woocommerce_paymennt_gateway_settings', apply_filters('woocommerce_settings_api_sanitized_fields_paymennt_gateway', $settings));
+        update_option('woocommerce_paymennt_card_settings', apply_filters('woocommerce_settings_api_sanitized_fields_paymennt_card', $settings));
         return $result;
     }
 
@@ -117,8 +117,8 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
     public function admin_options()
     {
 ?>
-<h3><?php _e('Paymennt', 'paymennt_gateway'); ?></h3>
-<p><?php _e('Please fill in the below section to start accepting payments on your site via Paymennt! Learn more at <a href="https://docs.paymennt.com/" target="_blank">Paymennt</a>.', 'paymennt_gateway'); ?>
+<h3><?php _e('Paymennt', 'paymennt_card'); ?></h3>
+<p><?php _e('Please fill in the below section to start accepting payments on your site via Paymennt! Learn more at <a href="https://docs.paymennt.com/" target="_blank">Paymennt</a>.', 'paymennt_card'); ?>
 </p>
 
 
@@ -130,28 +130,28 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
     <script>
     jQuery(document).ready(function() {
         jQuery('[name=save]').click(function() {
-            if (!jQuery('#woocommerce_paymennt_gateway_api_key').val()) {
+            if (!jQuery('#woocommerce_paymennt_card_api_key').val()) {
                 alert('API key not configured');
                 return false;
             }
-            if (!jQuery('#woocommerce_paymennt_gateway_api_secret').val()) {
+            if (!jQuery('#woocommerce_paymennt_card_api_secret').val()) {
                 alert('API secret not configured');
                 return false;
             }
-            if (!jQuery('#woocommerce_paymennt_gateway_public_key').val()) {
+            if (!jQuery('#woocommerce_paymennt_card_public_key').val()) {
                 alert('Public key not configured');
                 return false;
             }
-            if (jQuery('#woocommerce_paymennt_gateway_allow_specific').val() == 1) {
-                if (!jQuery('#woocommerce_paymennt_gateway_specific_countries').val()) {
+            if (jQuery('#woocommerce_paymennt_card_allow_specific').val() == 1) {
+                if (!jQuery('#woocommerce_paymennt_card_specific_countries').val()) {
                     alert(
                         'You enabled Paymennt for specific countries but you did not select any'
                     );
                     return false;
                 }
             }
-            if (jQuery('#woocommerce_paymennt_gateway_allow_user_specific').val() == 1) {
-                if (!jQuery('#woocommerce_paymennt_gateway_specific_user_roles').val()) {
+            if (jQuery('#woocommerce_paymennt_card_allow_user_specific').val() == 1) {
+                if (!jQuery('#woocommerce_paymennt_card_specific_user_roles').val()) {
                     alert(
                         'You enabled Paymennt for speficic user roles but you did not select any'
                     );
@@ -178,60 +178,60 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
         $staging_enabled = false;
         $this->form_fields = array(
             'enabled'     => array(
-                'title'   => __('Enable/Disable', 'paymennt_gateway'),
+                'title'   => __('Enable/Disable', 'paymennt_card'),
                 'type'    => 'checkbox',
-                'label'   => __('Enable card payments via Paymennt', 'paymennt_gateway'),
+                'label'   => __('Enable card payments via Paymennt', 'paymennt_card'),
                 'default' => 'no'
             ),
             'title'         => array(
-                'title'       => __('Title', 'paymennt_gateway'),
+                'title'       => __('Title', 'paymennt_card'),
                 'type'        => 'text',
-                'description' => __('This is the payment method title the user sees during checkout.', 'paymennt_gateway'),
-                'default'     => __('Credit Card (via Paymennt)', 'paymennt_gateway')
+                'description' => __('This is the payment method title the user sees during checkout.', 'paymennt_card'),
+                'default'     => __('Credit Card (via Paymennt)', 'paymennt_card')
             ),
             'description'         => array(
-                'title'       => __('Description', 'paymennt_gateway'),
+                'title'       => __('Description', 'paymennt_card'),
                 'type'        => 'text',
-                'description' => __('This is the description the user sees during checkout.', 'paymennt_gateway'),
-                'default'     => __('Complete your purchase using a credit or debit card.', 'paymennt_gateway')
+                'description' => __('This is the description the user sees during checkout.', 'paymennt_card'),
+                'default'     => __('Complete your purchase using a credit or debit card.', 'paymennt_card')
             ),
             'mode'          => array(
                 'title'       => 'Mode',
                 'type'        => 'select',
                 'options'     => $staging_enabled ? array(
-                    '1' => __('Live', 'paymennt_gateway'),
-                    '0' => __('Testing', 'paymennt_gateway'),
-                    '2' => __('Staging', 'paymennt_gateway'),
+                    '1' => __('Live', 'paymennt_card'),
+                    '0' => __('Testing', 'paymennt_card'),
+                    '2' => __('Staging', 'paymennt_card'),
                 ) : array(
-                    '1' => __('Live', 'paymennt_gateway'),
-                    '0' => __('Testing', 'paymennt_gateway'),
+                    '1' => __('Live', 'paymennt_card'),
+                    '0' => __('Testing', 'paymennt_card'),
                 ),
                 'default'     => '0',
                 'desc_tip'    => true,
-                'description' => sprintf(__('Logs additional information. <br>Log file path: %s', 'paymennt_gateway'), 'Your admin panel -> WooCommerce -> System Status -> Logs'),
+                'description' => sprintf(__('Logs additional information. <br>Log file path: %s', 'paymennt_card'), 'Your admin panel -> WooCommerce -> System Status -> Logs'),
                 'placeholder' => '',
                 'class'       => 'wc-enhanced-select',
             ),
             'api_key'         => array(
-                'title'       => __('API Key', 'paymennt_gateway'),
+                'title'       => __('API Key', 'paymennt_card'),
                 'type'        => 'text',
-                'description' => __('Your Api Key, you can find in your Paymennt account  settings.', 'paymennt_gateway'),
+                'description' => __('Your Api Key, you can find in your Paymennt account  settings.', 'paymennt_card'),
                 'default'     => '',
                 'desc_tip'    => true,
                 'placeholder' => ''
             ),
             'api_secret'         => array(
-                'title'       => __('API Secret', 'paymennt_gateway'),
+                'title'       => __('API Secret', 'paymennt_card'),
                 'type'        => 'text',
-                'description' => __('Your Api Secret, you can find in your Paymennt account  settings.', 'paymennt_gateway'),
+                'description' => __('Your Api Secret, you can find in your Paymennt account  settings.', 'paymennt_card'),
                 'default'     => '',
                 'desc_tip'    => true,
                 'placeholder' => ''
             ),
             'public_key'         => array(
-                'title'       => __('Public Key', 'paymennt_gateway'),
+                'title'       => __('Public Key', 'paymennt_card'),
                 'type'        => 'text',
-                'description' => __('Your public Key, you can find in your Paymennt account  settings.', 'paymennt_gateway'),
+                'description' => __('Your public Key, you can find in your Paymennt account  settings.', 'paymennt_card'),
                 'default'     => '',
                 'desc_tip'    => true,
                 'placeholder' => ''
@@ -240,25 +240,25 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
                 'title'       => 'Payemnt Type',
                 'type'        => 'select',
                 'options'     =>  array(
-                    '1' => __('Drop-in Frames', 'paymennt_gateway'),
-                    '0' => __('Hosted Checkout', 'paymennt_gateway'),
+                    '1' => __('Drop-in Frames', 'paymennt_card'),
+                    '0' => __('Hosted Checkout', 'paymennt_card'),
                 ),
                 'default'     => '0',
                 'desc_tip'    => true,
-                'description' => __('Frame: Embeded in the same page <br>Redirect: Opens separate payment page.', 'paymennt_gateway'),
+                'description' => __('Frame: Embeded in the same page <br>Redirect: Opens separate payment page.', 'paymennt_card'),
                 'placeholder' => '',
                 'class'       => 'wc-enhanced-select',
             ),
             'allow_specific' => array(
-                'title'       => __('Applicable Countries', 'paymennt_gateway'),
+                'title'       => __('Applicable Countries', 'paymennt_card'),
                 'type'        => 'select',
                 'options'     => array(
-                    '0' => __('All Countries', 'paymennt_gateway'),
-                    '1' => __('Specific countries only', 'paymennt_gateway')
+                    '0' => __('All Countries', 'paymennt_card'),
+                    '1' => __('Specific countries only', 'paymennt_card')
                 )
             ),
             'specific_countries' => array(
-                'title'   => __('Specific Countries', 'paymennt_gateway'),
+                'title'   => __('Specific Countries', 'paymennt_card'),
                 'desc'    => '',
                 'css'     => 'min-width: 350px;min-height:300px;',
                 'default' => 'wc_get_base_location()',
@@ -266,15 +266,15 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
                 'options' => $this->getCountries()
             ),
             'allow_user_specific' => array(
-                'title'       => __('Applicable User Roles', 'paymennt_gateway'),
+                'title'       => __('Applicable User Roles', 'paymennt_card'),
                 'type'        => 'select',
                 'options'     => array(
-                    '0' => __('All User Roles', 'paymennt_gateway'),
-                    '1' => __('Specific Roles only', 'paymennt_gateway')
+                    '0' => __('All User Roles', 'paymennt_card'),
+                    '1' => __('Specific Roles only', 'paymennt_card')
                 )
             ),
             'specific_user_roles' => array(
-                'title'   => __('Specific User Roles', 'paymennt_gateway'),
+                'title'   => __('Specific User Roles', 'paymennt_card'),
                 'desc'    => '',
                 'css'     => 'min-width: 350px;min-height:300px;',
                 'default' => 'wc_get_base_role()',
@@ -340,7 +340,7 @@ class WC_Gateway_Paymennt extends Paymennt_Gateway_Parent
         $order   = new WC_Order($order_id);
         if (!isset($_GET['response_code'])) {
             update_post_meta($order->get_id(), '_payment_method_title', 'Card');
-            update_post_meta($order->get_id(), '_payment_method', 'paymennt_gateway');
+            update_post_meta($order->get_id(), '_payment_method', 'paymennt_card');
         }
 
         $failedPaymentTryAgainLater = 'Failed to process payment please try again later';

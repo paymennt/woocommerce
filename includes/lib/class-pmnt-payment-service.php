@@ -3,7 +3,7 @@
 define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.2');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
-class Paymennt_Gateway_Payment extends Paymennt_Gateway_Parent
+class Paymennt_Card_Payment extends Paymennt_Card_Parent
 {
 
     private static $instance;
@@ -22,7 +22,7 @@ class Paymennt_Gateway_Payment extends Paymennt_Gateway_Parent
     public static function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new Paymennt_Gateway_Payment();
+            self::$instance = new Paymennt_Card_Payment();
         }
         return self::$instance;
     }
@@ -42,7 +42,7 @@ class Paymennt_Gateway_Payment extends Paymennt_Gateway_Parent
         $request->orderId =  $orderId;
         
         $request->allowedPaymentMethods = ['CARD'];
-        $request->returnUrl= get_site_url() . '?wc-api=wc_gateway_paymennt_process_response';
+        $request->returnUrl= get_site_url() . '?wc-api=wc_card_paymennt_process_response';
 
         // CURRENCY AND AMOUNT
         $request->currency = $this->pmntOrder->getCurrencyCode(); // 3 letter ISO currency code. eg, AED

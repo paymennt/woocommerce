@@ -1,6 +1,6 @@
 <?php
  
-class Paymennt_Order extends Paymennt_Gateway_Parent
+class Paymennt_Order extends Paymennt_Card_Parent
 {
 
     private $order = array();
