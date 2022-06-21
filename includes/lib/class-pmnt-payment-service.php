@@ -1,36 +1,28 @@
 <?php
-
-/*Copyright 2022 Paymennt */
-
-/*This file is part of Paymennt Card Payment.
- * Paymennt Card Payment is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
- * Paymennt Card Payment is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- * You should have received a copy of the GNU General Public License along with Paymennt Card Payment. If not, see <https://www.gnu.org/licenses/>.
- */
-
-define('PC_CARD_EXT_VERSION', 'WooCommerce-Card-3.0.1');
+ 
+define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.2');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
-class Paymennt_Card_Payment extends Paymennt_Card_Parent
+class Paymennt_Gateway_Payment extends Paymennt_Gateway_Parent
 {
 
     private static $instance;
-    private $pcOrder;
-    private $pcConfig;
-    private $pcUtils;
+    private $pmntOrder;
+    private $pmntConfig;
+    private $pmntUtils;
 
     public function __construct()
     {
         parent::__construct();
-        $this->pcOrder = new Paymennt_Card_Order();
-        $this->pcConfig = Paymennt_Card_Config::getInstance();
-        $this->pcUtils = new Paymennt_Card_Utils();
+        $this->pmntOrder = new Paymennt_Order();
+        $this->pmntConfig = Paymennt_Config::getInstance();
+        $this->pmntUtils = new Paymennt_Utils();
     }
 
     public static function getInstance()
     {
         if (self::$instance === null) {
-            self::$instance = new Paymennt_Card_Payment();
+            self::$instance = new Paymennt_Gateway_Payment();
         }
         return self::$instance;
     }
@@ -40,36 +32,36 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
     {
         $request = new \Paymennt\checkout\WebCheckoutRequest();
 
-        $orderId = $this->pcOrder->getSessionOrderId();
+        $orderId = $this->pmntOrder->getSessionOrderId();
         $order = new WC_order($orderId);
-        $this->pcOrder->loadOrder($orderId);
-        $order->update_status($this->pcConfig->getNewOrderStatus());
+        $this->pmntOrder->loadOrder($orderId);
+        $order->update_status($this->pmntConfig->getNewOrderStatus());
 
         // ORDER INFO
         $request->requestId  =$orderId;
         $request->orderId =  $orderId;
         
         $request->allowedPaymentMethods = ['CARD'];
-        $request->returnUrl= get_site_url() . '?wc-api=wc_gateway_paymennt_card_process_response';
+        $request->returnUrl= get_site_url() . '?wc-api=wc_gateway_paymennt_process_response';
 
         // CURRENCY AND AMOUNT
-        $request->currency = $this->pcOrder->getCurrencyCode(); // 3 letter ISO currency code. eg, AED
-        $request->amount = $this->pcOrder->getTotal(); // transaction amount
+        $request->currency = $this->pmntOrder->getCurrencyCode(); // 3 letter ISO currency code. eg, AED
+        $request->amount = $this->pmntOrder->getTotal(); // transaction amount
         
         // TOTALS
         // order total = subtotal + tax + shipping + handling - discount
         $request->totals = new \Paymennt\model\Totals(); // optional
-        $request->totals->subtotal = $this->pcOrder->getSubtotal(); // item subtotal exclusive of VAT/Tax in order currency
-        $request->totals->tax =  $this->pcOrder->getTaxAmount(); // VAT/Tax for this purchase in order currency
-        $request->totals->shipping = $this->pcOrder->getShippingAmount(); // shipping cost in order currency
+        $request->totals->subtotal = $this->pmntOrder->getSubtotal(); // item subtotal exclusive of VAT/Tax in order currency
+        $request->totals->tax =  $this->pmntOrder->getTaxAmount(); // VAT/Tax for this purchase in order currency
+        $request->totals->shipping = $this->pmntOrder->getShippingAmount(); // shipping cost in order currency
         $request->totals->handling = "0"; // handling fees in order currency
-        $request->totals->discount = $this->pcOrder->getDiscountAmount(); // discount applied ()
+        $request->totals->discount = $this->pmntOrder->getDiscountAmount(); // discount applied ()
         if(!$request->totals->subtotal ||  $request->totals->subtotal <= 0) {
-            $request->totals->subtotal =  $this->pcOrder->getTotal();
+            $request->totals->subtotal =  $this->pmntOrder->getTotal();
         }
 
         try{
-            $request->extVersion = PC_CARD_EXT_VERSION;
+            $request->extVersion = PMNT_EXT_VERSION;
             $request->ecommerce = 'WordPress ' . $this->get_wp_version() . ', WooCommerce ' . $this->wpbo_get_woo_version_number();
         } catch (\Throwable $e) {
             // NOTHING TO DO 
@@ -138,46 +130,46 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
      */
     public function postOrderToPaymennt()
     {
-        if (!$this->pcConfig->isEnabled()) {
+        if (!$this->pmntConfig->isEnabled()) {
             return null;
         }
         $checkoutRequestParams = $this->getCheckoutRequestParams();
         $response = $this->postCheckout($checkoutRequestParams);
 
-        $this->pcOrder->clearSessionCurrentOrder();
+        $this->pmntOrder->clearSessionCurrentOrder();
         return $response;
     }
 
     public function postCheckout($checkoutRequestParams)
     {
         $client = new \Paymennt\PaymenntClient(
-            $this->pcConfig->getApiKey(), //
-            $this->pcConfig->getApiSecret() //
+            $this->pmntConfig->getApiKey(), //
+            $this->pmntConfig->getApiSecret() //
           );
-        $client->useTestEnvironment(!$this->pcConfig->isLiveMode());
+        $client->useTestEnvironment(!$this->pmntConfig->isLiveMode());
 
         return $client->createWebCheckout($checkoutRequestParams);
     }
 
     public function postTokenOrderToPaymennt($token)
     {
-        if (!$this->pcConfig->isEnabled()) {
+        if (!$this->pmntConfig->isEnabled()) {
             return null;
         }
         $paymentRequestParams = $this->getPaymentRequestParams($token);
         $response = $this->postTokenPayment($paymentRequestParams);
 
-        $this->pcOrder->clearSessionCurrentOrder();
+        $this->pmntOrder->clearSessionCurrentOrder();
         return $response;
     }
 
     public function postTokenPayment($paymentRequestParams)
     {
         $client = new \Paymennt\PaymenntClient(
-            $this->pcConfig->getApiKey(), //
-            $this->pcConfig->getApiSecret() //
+            $this->pmntConfig->getApiKey(), //
+            $this->pmntConfig->getApiSecret() //
           );
-        $client->useTestEnvironment(!$this->pcConfig->isLiveMode());
+        $client->useTestEnvironment(!$this->pmntConfig->isLiveMode());
 
         return $client->createPayment($paymentRequestParams);
     }
@@ -188,16 +180,33 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         WC()->session->set('pointCheckoutCurrentOrderId', $_REQUEST['reference']);
         
         $client = new \Paymennt\PaymenntClient(
-            $this->pcConfig->getApiKey(), //
-            $this->pcConfig->getApiSecret() //
+            $this->pmntConfig->getApiKey(), //
+            $this->pmntConfig->getApiSecret() //
           );
-        $client->useTestEnvironment(!$this->pcConfig->isLiveMode());
+        $client->useTestEnvironment(!$this->pmntConfig->isLiveMode());
         
         $request = new \Paymennt\checkout\GetCheckoutRequest();
         $request->checkoutId = $_REQUEST['checkout']; // checkoutId of checkout to be fetched
         $checkout = $client->getCheckoutRequest($request);
 
         return $checkout;
+    }
+
+    public function captureAuthorizedPayment($paymentId)
+    {
+        $order = new WC_Order($_REQUEST['reference']);
+        
+        $client = new \Paymennt\PaymenntClient(
+            $this->pmntConfig->getApiKey(), //
+            $this->pmntConfig->getApiSecret() //
+          );
+        $client->useTestEnvironment(!$this->pmntConfig->isLiveMode());
+        
+        $request = new \Paymennt\payment\CaptureAuthPaymentRequest();
+        $request->paymentId = $paymentId; // paymentId of authorized payment to be captured
+        $payment = $client->captureAuthorizedPayment($request);
+
+        return $payment;
     }
 
     public function checkPaymentStatus()
@@ -249,7 +258,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
                 $order->add_order_note($note);
                 // Save the data
                 $order->save();
-                $this->pcUtils->log('ERROR ' . $errorMsg);
+                $this->pmntUtils->log('ERROR ' . $errorMsg);
                 return array(
                     'success' => false,
                     'transactionId' => ''
@@ -271,7 +280,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
             default:
                 $color = 'style="color:red;"';
         }
-        $message = 'Paymennt Status: <b ' . $color . '>' . $orderStatus . '</b><br/>Paymennt Transaction ID: <a href="' . $this->pcUtils->getAdminUrl() . '/merchant/transactions/' . $checkout . '/read " target="_blank"><b>' . $checkout . '</b></a>' . '\n';
+        $message = 'Paymennt Status: <b ' . $color . '>' . $orderStatus . '</b><br/>Paymennt Transaction ID: <a href="' . $this->pmntUtils->getAdminUrl() . '/merchant/transactions/' . $checkout . '/read " target="_blank"><b>' . $checkout . '</b></a>' . '\n';
         if ($codAmount > 0) {
             $message .= '<b style="color:red;">[NOTICE] </b><i>COD Amount: <b>' . $codAmount . ' ' . $this->session->data['currency'] . '</b></i>' . '\n';
         }
