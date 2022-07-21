@@ -3,12 +3,19 @@ let loadPaymenntFrame = function () {
   var errorMessage = document.querySelector(".error-message");
   var infoMessage = document.querySelector(".info-message");
   var publicKey = document.getElementById("public-key");
+  var mode = document.getElementById("mode").value;
+
   if (publicKey != undefined && cardFrame.childElementCount < 1) {
     publicKey = publicKey.value;
 
     PaymenntJS.init({
       publicKey: publicKey,
-      mode: PaymenntJS.modes.TEST,
+      mode:
+        mode == 1
+          ? PaymenntJS.modes.LIVE
+          : mode == 2
+          ? PaymenntJS.modes.STAGING
+          : PaymenntJS.modes.TEST,
       onTokenized: function (data) {
         infoMessage.value = data.token;
 
