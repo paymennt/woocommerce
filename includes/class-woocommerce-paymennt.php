@@ -321,6 +321,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
     <p class="error-message"></p>
     <input id='public-key' type='hidden'
         value='<?php echo esc_attr( Paymennt_Config::getInstance()->getPublicKey()); ?>'>
+    <input id='mode' type='hidden' value='<?php echo esc_attr( Paymennt_Config::getInstance()->getMode()); ?>'>
     <input class="info-message" type="hidden" id="payment-token" name="paymentToken">
 
 </fieldset>
