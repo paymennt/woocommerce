@@ -1,6 +1,6 @@
 <?php
  
-define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.3');
+define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.4');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
 class Paymennt_Card_Payment extends Paymennt_Card_Parent

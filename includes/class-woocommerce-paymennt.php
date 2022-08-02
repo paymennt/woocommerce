@@ -322,7 +322,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
     <input id='public-key' type='hidden'
         value='<?php echo esc_attr( Paymennt_Config::getInstance()->getPublicKey()); ?>'>
     <input id='mode' type='hidden' value='<?php echo esc_attr( Paymennt_Config::getInstance()->getMode()); ?>'>
-    <input class="info-message" type="hidden" id="payment-token" name="paymentToken">
+    <input class="info-message" type="hidden" id="paymennt-token" name="paymenntToken">
 
 </fieldset>
 <?php
@@ -347,7 +347,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         $failedPaymentTryAgainLater = 'Failed to process payment please try again later';
 
         if ( $this->config->isFramePayment() ) {
-            $Token=sanitize_text_field($_POST['paymentToken']);
+            $Token=sanitize_text_field($_POST['paymenntToken']);
             if(!empty( $Token))
             {
                 try {
@@ -412,7 +412,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
                 }
             }
             else{
-                $this->pmntUtils->log('Failed to initiate card payment using Paymennt, message : ' . $e->getMessage());
+                $this->pmntUtils->log('Failed to initiate card payment using Paymennt. ');
                     wc_add_notice(__($failedPaymentTryAgainLater), 'error');
             }
         }
