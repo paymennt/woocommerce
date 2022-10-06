@@ -16,8 +16,7 @@ class CreatePaymentRequest {
   * source object
   * @var TokenPaymentSource
   */
-
-  public TokenPaymentSource $source;
+  public $source;
   
   /**
   * checkoutId (optional)

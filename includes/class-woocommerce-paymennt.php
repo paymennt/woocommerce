@@ -237,7 +237,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
                 'placeholder' => ''
             ),
             'payment_type'          => array(
-                'title'       => 'Payemnt Type',
+                'title'       => 'Payment Type',
                 'type'        => 'select',
                 'options'     =>  array(
                     '1' => __('Drop-in Frames', 'paymennt_card'),
@@ -347,12 +347,12 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         $failedPaymentTryAgainLater = 'Failed to process payment please try again later';
 
         if ( $this->config->isFramePayment() ) {
-            $Token=sanitize_text_field($_POST['paymenntToken']);
-            if(!empty( $Token))
+            $token=sanitize_text_field($_POST['paymenntToken']);
+            if(!empty($token))
             {
                 try {
 
-                    $result = $this->paymentService->postTokenOrderToPaymennt($Token);
+                    $result = $this->paymentService->postTokenOrderToPaymennt($token);
                     
                     WC()->session->set('checkoutId', $result->checkoutDetails->id);
                     $note = $this->paymentService->getOrderHistoryMessage($result->id, 0, $result->status, '');
@@ -373,7 +373,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
                         return array(
                             'result' => 'success',
                             'redirect' => $redirectUrl
-                        );       
+                        );
                     }
                     else if ($result->status=="AUTHORIZED")
                     {
@@ -412,7 +412,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
                 }
             }
             else{
-                $this->pmntUtils->log('Failed to initiate card payment using Paymennt. ');
+                $this->pmntUtils->log('Failed to initiate card payment using Paymennt. "Token" is empty');
                     wc_add_notice(__($failedPaymentTryAgainLater), 'error');
             }
         }

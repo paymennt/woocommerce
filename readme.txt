@@ -3,7 +3,7 @@ Contributors: paymennt
 Tags: credit card, payment, payment request, woocommerce
 Requires at least: 5.7
 Tested up to: 6.0
-Stable tag: 3.0.4
+Stable tag: 3.0.5
 License: MIT
 License URI: https://github.com/paymennt/woocommerce/blob/main/LICENSE
 

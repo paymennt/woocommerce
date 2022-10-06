@@ -1,6 +1,6 @@
 <?php
  
-define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.4');
+define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.5');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
 class Paymennt_Card_Payment extends Paymennt_Card_Parent
@@ -75,7 +75,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         $request->customer->phone =  $order->get_billing_phone(); // customer email address
         
         $request->billingAddress = new \Paymennt\model\Address(); // required
-        $request->billingAddress->name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();// name of person at billing address
+        $request->billingAddress->name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(); // name of person at billing address
         $request->billingAddress->address1 = $order->get_billing_address_1(); // billing address 1
         $request->billingAddress->address2 = $order->get_billing_address_2(); // billing address 2
         $request->billingAddress->city = $order->get_billing_city(); // city
@@ -99,11 +99,11 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         foreach ($cartItems as $item_id => $item_data) {
             $product = $item_data->get_product();
             $item =  new \Paymennt\model\Item(); // optional
-            $item->name = $product->get_name(); 
-            $item->sku = $product->get_sku(); 
-            $item->unitprice = $item_data->get_total(); 
-            $item->quantity = $item_data->get_quantity(); 
-            $item->linetotal = $item_data->get_total(); 
+            $item->name = $product->get_name();
+            $item->sku = $product->get_sku();
+            $item->unitprice = $item_data->get_total();
+            $item->quantity = $item_data->get_quantity();
+            $item->linetotal = $item_data->get_total();
             
             //in case of bundles the bundle group item total is set to zero here to prevent conflict in totals
             if ($product->get_type() == 'bundle') {
@@ -120,7 +120,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
     public function getPaymentRequestParams($token)
     {
         $checkoutDeatils = $this->getCheckoutRequestParams();
-        $request = new \Paymennt\payment\CreatePaymentRequest("TOKEN",$token,"", $checkoutDeatils);
+        $request = new \Paymennt\payment\CreatePaymentRequest("TOKEN", $token, "", $checkoutDeatils);
 
         return $request;
     }
