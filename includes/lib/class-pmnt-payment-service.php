@@ -220,7 +220,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
 
                 if ( $result->status == 'PAID') {
 
-                    $note = $this->getOrderHistoryMessage($result->id, $result->cash, $result->status, $result->currency);
+                    $note = $this->getOrderHistoryMessage($result->id, $result->amount, $result->status, $result->currency);
                     // Add the note
                     $order->add_order_note($note);
         
@@ -282,7 +282,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         }
         $message = 'Paymennt Status: <b ' . $color . '>' . $orderStatus . '</b><br/>Paymennt Transaction ID: <a href="' . $this->pmntUtils->getAdminUrl() . '/merchant/transactions/' . $checkout . '/read " target="_blank"><b>' . $checkout . '</b></a>' . '\n';
         if ($codAmount > 0) {
-            $message .= '<b style="color:red;">[NOTICE] </b><i>COD Amount: <b>' . $codAmount . ' ' . $this->session->data['currency'] . '</b></i>' . '\n';
+            $message .= '<b style="color:red;">[NOTICE] </b><i>COD Amount: <b>' . $codAmount . ' ' .  $currency . '</b></i>' . '\n';
         }
         return $message;
     }
