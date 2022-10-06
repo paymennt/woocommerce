@@ -282,7 +282,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         }
         $message = 'Paymennt Status: <b ' . $color . '>' . $orderStatus . '</b><br/>Paymennt Transaction ID: <a href="' . $this->pmntUtils->getAdminUrl() . '/merchant/transactions/' . $checkout . '/read " target="_blank"><b>' . $checkout . '</b></a>' . '\n';
         if ($codAmount > 0) {
-            $message .= '<b style="color:red;">[NOTICE] </b><i>COD Amount: <b>' . $codAmount . ' ' .  $currency . '</b></i>' . '\n';
+            $message .= '<b style="color:red;">[NOTICE] </b><i>COD Amount: <b>' . $codAmount . ' ' .  $currency . '</b></i>' ;
         }
         return $message;
     }
