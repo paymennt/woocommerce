@@ -220,7 +220,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
 
                 if ( $result->status == 'PAID') {
 
-                    $note = $this->getOrderHistoryMessage($result->id, $result->amount, $result->status, $result->currency);
+                    $note = $this->getOrderHistoryMessage($result->id, $result->cashAmount, $result->status, $result->currency);
                     // Add the note
                     $order->add_order_note($note);
         
