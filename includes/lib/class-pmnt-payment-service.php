@@ -1,6 +1,6 @@
 <?php
  
-define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.5');
+define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.6');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
 class Paymennt_Card_Payment extends Paymennt_Card_Parent
@@ -46,25 +46,32 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
 
         // CURRENCY AND AMOUNT
         $request->currency = $this->pmntOrder->getCurrencyCode(); // 3 letter ISO currency code. eg, AED
-        $request->amount = $this->pmntOrder->getTotal(); // transaction amount
+        // transaction amount ceiled to 2 decimal places
+        $request->amount = $this->ceilAmount($this->pmntOrder->getTotal());
         
         // TOTALS
         // order total = subtotal + tax + shipping + handling - discount
         $request->totals = new \Paymennt\model\Totals(); // optional
-        $request->totals->subtotal = $this->pmntOrder->getSubtotal(); // item subtotal exclusive of VAT/Tax in order currency
-        $request->totals->tax =  $this->pmntOrder->getTaxAmount(); // VAT/Tax for this purchase in order currency
-        $request->totals->shipping = $this->pmntOrder->getShippingAmount(); // shipping cost in order currency
-        $request->totals->handling = "0"; // handling fees in order currency
-        $request->totals->discount = $this->pmntOrder->getDiscountAmount(); // discount applied ()
+        // item subtotal exclusive of VAT/Tax in order currency
+        $request->totals->subtotal = $this->ceilAmount($this->pmntOrder->getSubtotal());
+        // VAT/Tax for this purchase in order currency
+        $request->totals->tax = $this->ceilAmount($this->pmntOrder->getTaxAmount());
+        // shipping cost in order currency
+        $request->totals->shipping = $this->ceilAmount($this->pmntOrder->getShippingAmount());
+        // handling fees in order currency
+        $request->totals->handling = "0";
+        // discount applied ()
+        $request->totals->discount = $this->ceilAmount($this->pmntOrder->getDiscountAmount());
         if(!$request->totals->subtotal ||  $request->totals->subtotal <= 0) {
-            $request->totals->subtotal =  $this->pmntOrder->getTotal();
+            $request->totals->subtotal = $this->ceilAmount($this->pmntOrder->getTotal());
         }
 
         try{
             $request->extVersion = PMNT_EXT_VERSION;
-            $request->ecommerce = 'WordPress ' . $this->get_wp_version() . ', WooCommerce ' . $this->wpbo_get_woo_version_number();
+            $request->ecommerce = 'WordPress ' . $this->get_wp_version() . ', WooCommerce '
+            . $this->wpbo_get_woo_version_number();
         } catch (\Throwable $e) {
-            // NOTHING TO DO 
+            // NOTHING TO DO
         }
         
         // CUSTOMER
@@ -75,7 +82,8 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         $request->customer->phone =  $order->get_billing_phone(); // customer email address
         
         $request->billingAddress = new \Paymennt\model\Address(); // required
-        $request->billingAddress->name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name(); // name of person at billing address
+        // name of person at billing address
+        $request->billingAddress->name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
         $request->billingAddress->address1 = $order->get_billing_address_1(); // billing address 1
         $request->billingAddress->address2 = $order->get_billing_address_2(); // billing address 2
         $request->billingAddress->city = $order->get_billing_city(); // city
@@ -85,7 +93,8 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         
         if(!empty($order->get_shipping_country()) && !empty($order->get_shipping_first_name())) {
             $request->deliveryAddress = new \Paymennt\model\Address(); // required if shipping is required
-            $request->deliveryAddress->name = $order->get_shipping_first_name() . ' ' . $order->get_shipping_last_name(); // name of person at billing address
+            // name of person at billing address
+            $request->deliveryAddress->name = $order->get_shipping_first_name() . ' ' . $order->get_shipping_last_name();
             $request->deliveryAddress->address1 =  $order->get_shipping_address_1(); // billing address 1
             $request->deliveryAddress->address2 =  $order->get_shipping_address_2(); // billing address 2
             $request->deliveryAddress->city = $order->get_shipping_city(); // city
@@ -101,9 +110,9 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
             $item =  new \Paymennt\model\Item(); // optional
             $item->name = $product->get_name();
             $item->sku = $product->get_sku();
-            $item->unitprice = $item_data->get_total();
+            $item->unitprice = $this->ceilAmount($item_data->get_total());
             $item->quantity = $item_data->get_quantity();
-            $item->linetotal = $item_data->get_total();
+            $item->linetotal = $this->ceilAmount($item_data->get_total());
             
             //in case of bundles the bundle group item total is set to zero here to prevent conflict in totals
             if ($product->get_type() == 'bundle') {
@@ -220,7 +229,8 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
 
                 if ( $result->status == 'PAID') {
 
-                    $note = $this->getOrderHistoryMessage($result->id, $result->cashAmount, $result->status, $result->currency);
+                    $note = $this->getOrderHistoryMessage($result->id, $result->cashAmount,
+                    $result->status, $result->currency);
                     // Add the note
                     $order->add_order_note($note);
         
@@ -280,9 +290,12 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
             default:
                 $color = 'style="color:red;"';
         }
-        $message = 'Paymennt Status: <b ' . $color . '>' . $orderStatus . '</b><br/>Paymennt Transaction ID: <a href="' . $this->pmntUtils->getAdminUrl() . '/merchant/transactions/' . $checkout . '/read " target="_blank"><b>' . $checkout . '</b></a>';
+        $message = 'Paymennt Status: <b ' . $color . '>' . $orderStatus . '</b><br/>Paymennt Transaction ID: <a href="'
+        . $this->pmntUtils->getAdminUrl() . '/merchant/transactions/' . $checkout . '/read " target="_blank"><b>'
+        . $checkout . '</b></a>';
         if ($codAmount > 0) {
-            $message .= '<b style="color:red;">[NOTICE] </b><i>COD Amount: <b>' . $codAmount . ' ' .  $currency . '</b></i>' ;
+            $message .= '<b style="color:red;">[NOTICE] </b><i>COD Amount: <b>'
+            . $codAmount . ' ' .  $currency . '</b></i>' ;
         }
         return $message;
     }
@@ -297,7 +310,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         $plugin_folder = get_plugins( '/' . 'woocommerce' );
         $plugin_file = 'woocommerce.php';
         
-        // If the plugin version number is set, return it 
+        // If the plugin version number is set, return it
         if ( isset( $plugin_folder[$plugin_file]['Version'] ) ) {
             return $plugin_folder[$plugin_file]['Version'];
 
@@ -307,7 +320,15 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         }
     }
 
-    function get_wp_version() {
+    private function get_wp_version() {
         return get_bloginfo('version');
+    }
+
+    private function ceilAmount($amount) {
+        if(isset($amount)) {
+            return round(ceil($amount * 100) / 100, 2);
+        } else {
+            return $amount;
+        }
     }
 }
