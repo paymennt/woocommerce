@@ -2,7 +2,7 @@
 
 /* Plugin Name: Paymennt
  * Description: Have your customers pay with credit or debit cards via Paymennt
- * Version:     3.0.5
+ * Version:     3.0.6
  * Author:      Paymennt
  * Author URI:  https://www.paymennt.com
  */

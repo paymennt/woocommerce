@@ -1,5 +1,5 @@
 <?php
- 
+
 
 require_once dirname(__FILE__) . '/lib/index.php';
 
@@ -12,9 +12,8 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
     public function __construct()
     {
         $this->pmntUtils = new Paymennt_Utils();
-        $this->has_fields = false;
+        $this->has_fields = true;
         if (is_admin()) {
-            $this->has_fields = true;
             $this->init_form_fields();
             $this->init_settings();
         }
@@ -22,7 +21,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         // Define user set variables
         $this->method_title = __('Paymennt', 'woocommerce');
         $this->method_description = __('Have your customers pay with credit or debit cards via Paymennt', 'woocommerce');
-        $this->title = Paymennt_Config::getInstance()->getTitle() ;
+        $this->title = Paymennt_Config::getInstance()->getTitle();
         $this->description = Paymennt_Config::getInstance()->getDescription();
         $this->paymentService = Paymennt_Card_Payment::getInstance();
         $this->config = Paymennt_Config::getInstance();
@@ -36,23 +35,23 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         add_action('woocommerce_wc_card_paymennt_process_response', array($this, 'process_response'));
 
         //Custom JS and CSS
-        if ( $this->config->isFramePayment() ) {
-            add_action( 'wp_enqueue_scripts', array( $this, 'add_paymennt_card_styles' ) );
-            add_action( 'wp_footer', array( $this, 'add_paymennt_card_scripts' ) );
-        }   
+        if ($this->config->isFramePayment()) {
+            add_action('wp_enqueue_scripts', array($this, 'add_paymennt_card_styles'));
+            add_action('wp_footer', array($this, 'add_paymennt_card_scripts'));
+        }
     }
 
-    function add_paymennt_card_scripts() {
-        
-        wp_enqueue_script( 'paymennt-frame-js',  'https://pay.paymennt.com/static/js/paymennt-frames.js', true );
-        wp_enqueue_script( 'paymennt-checkout-script', plugins_url( '/../assets/js/paymennt_checkout.js', __FILE__ ), true );
+    function add_paymennt_card_scripts()
+    {
+        wp_enqueue_script('paymennt-frame-js',  'https://pay.paymennt.com/static/js/paymennt-frames.js', true);
+        wp_enqueue_script('paymennt-checkout-script', plugins_url('/../assets/js/paymennt_checkout.js', __FILE__), true);
     }
 
-    function add_paymennt_card_styles() {
-       
-        wp_enqueue_style( 'paymennt-checkout-styles', plugins_url( '/../assets/css/styles.css', __FILE__ ) );
+    function add_paymennt_card_styles()
+    {
+        wp_enqueue_style('paymennt-checkout-styles', plugins_url('/../assets/css/styles.css', __FILE__));
     }
-    
+
     function process_admin_options()
     {
         $result = parent::process_admin_options();
@@ -72,7 +71,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         $valid = true;
         if ($this->config->isSpecificUserRoles()) {
             $valid = false;
-            if(WC()->customer != null) {
+            if (WC()->customer != null) {
                 $user_id = WC()->customer->get_id();
                 $user = new WP_User($user_id);
                 if (!empty($user->roles) && is_array($user->roles)) {
@@ -89,7 +88,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
 
         if ($valid && $this->config->isSpecificCountries()) {
             $valid = false;
-            if(WC()->customer != null) {
+            if (WC()->customer != null) {
                 $billingCountry = WC()->customer->get_billing_country();
                 $specfiedCountries = $this->config->getSpecificCountries();
                 if (!$billingCountry == null && !empty($specfiedCountries) && is_array($specfiedCountries)) {
@@ -304,35 +303,38 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         return $user_roles;
     }
 
-    public function payment_fields() {
-        
-    if ( !$this->config->isFramePayment() ) {
-        $description = $this->get_description();
-        if ( $description ) {
-            // display the description with <p> tags etc.
-            echo wpautop( wp_kses_post( $description ) );
-        }
-    }
+    public function payment_fields()
+    {
 
-    if ( $this->config->isFramePayment() ) {
-    ?>
-<fieldset id="wc-<?php echo esc_attr( $this->id ); ?>-cc-form" class="wc-credit-card-form wc-payment-form">
+        if (!$this->config->isFramePayment()) {
+            $description = $this->get_description();
+            if ($description) {
+                // display the description with <p> tags etc.
+                echo wpautop(wp_kses_post($description));
+            }
+        }
+
+        if ($this->config->isFramePayment()) {
+        ?>
+<fieldset id="wc-<?php echo esc_attr($this->id); ?>-cc-form" class="wc-credit-card-form wc-payment-form">
     <div id="paymennt-frame" class="card-frame"></div>
     <p class="error-message"></p>
     <input id='public-key' type='hidden'
-        value='<?php echo esc_attr( Paymennt_Config::getInstance()->getPublicKey()); ?>'>
-    <input id='mode' type='hidden' value='<?php echo esc_attr( Paymennt_Config::getInstance()->getMode()); ?>'>
+        value='<?php echo esc_attr(Paymennt_Config::getInstance()->getPublicKey()); ?>'>
+    <input id='mode' type='hidden' value='<?php echo esc_attr(Paymennt_Config::getInstance()->getMode()); ?>'>
     <input class="info-message" type="hidden" id="paymennt-token" name="paymenntToken">
 
 </fieldset>
 <?php
-    }
+        }
 
-    if ( !$this->config->isLiveMode() ) {
-        echo wpautop( wp_kses_post( sprintf( __( 'TEST MODE ENABLED. You can use test cards only. ' .
-            'See the <a href="%s" target="_blank">Paymennt WooCommerce Guide</a> for more details.', 'woocommerce' ),
-            'https://docs.paymennt.com/docs/integrate/ecomm/woocommerce' )));
-      }
+        if (!$this->config->isLiveMode()) {
+            echo wpautop(wp_kses_post(sprintf(
+                __('TEST MODE ENABLED. You can use test cards only. ' .
+                'See the <a href="%s" target="_blank">Paymennt WooCommerce Guide</a> for more details.', 'woocommerce'),
+                'https://docs.paymennt.com/docs/integrate/ecomm/woocommerce'
+            )));
+        }
     }
 
     function process_payment($order_id)
@@ -344,116 +346,104 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
             update_post_meta($order->get_id(), '_payment_method', 'paymennt_card');
         }
 
-        $failedPaymentTryAgainLater = 'Failed to process payment please try again later';
+        $failedPaymentTryAgainLater = 'Failed to process payment please try again later.';
 
-        if ( $this->config->isFramePayment() ) {
-            $token=sanitize_text_field($_POST['paymenntToken']);
-            if(!empty($token))
-            {
+        if ($this->config->isFramePayment()) {
+            $token = sanitize_text_field($_POST['paymenntToken']);
+            if (!empty($token)) {
                 try {
 
                     $result = $this->paymentService->postTokenOrderToPaymennt($token);
-                    
+
                     WC()->session->set('checkoutId', $result->checkoutDetails->id);
                     $note = $this->paymentService->getOrderHistoryMessage($result->id, 0, $result->status, '');
                     $order->add_order_note($note);
-            
-                    if ($result->status=="REDIRECT")
-                    {
+
+                    if ($result->status == "REDIRECT") {
                         return array(
                             'result' => 'success',
                             'redirect' => $result->redirectUrl
                         );
-                    }
-                    else if ($result->status=="CAPTURED")
-                    {
+                    } else if ($result->status == "CAPTURED") {
                         $order->payment_complete();
                         WC()->session->set('refresh_totals', true);
+                        WC()->cart->empty_cart();
                         $redirectUrl = $this->get_return_url($order);
                         return array(
                             'result' => 'success',
                             'redirect' => $redirectUrl
                         );
-                    }
-                    else if ($result->status=="AUTHORIZED")
-                    {
-                        $paymentId= $result->id;
-                        
-                        $paymentResult = $this->paymentService->captureAuthorizedPayment($paymentId);
+                    } else if ($result->status == "AUTHORIZED") {
+                        $paymentId = $result->id;
 
-                        if ($paymentResult->status=="CAPTURED") {
+                        $paymentCaptureResult = $this->paymentService->captureAuthorizedPayment($paymentId);
+
+                        if ($paymentCaptureResult->status == "CAPTURED") {
                             $order->payment_complete();
                             WC()->session->set('refresh_totals', true);
+                            WC()->cart->empty_cart();
                             $redirectUrl = $this->get_return_url($order);
                             return array(
                                 'result' => 'success',
                                 'redirect' => $redirectUrl
                             );
-                        } 
-                        else {
-                            wc_add_notice(__($failedPaymentTryAgainLater), 'error');
+                        } else {
+                            $this->pmntUtils->log('Failed to initiate card payment using Paymennt, message : ' . "Error in capturing authorized payment");
+                            wc_add_notice(__("Error in capturing payment."), 'error');
                         }
-                    }
-                    else
-                    {
-                        if (!empty($result->responseMessage))
-                        {
+                    } else {
+                        if (!empty($result->responseMessage)) {
                             wc_add_notice(__($result->responseMessage), 'error');
-                        }
-                        else
-                        {   
+                        } else {
                             wc_add_notice(__($failedPaymentTryAgainLater), 'error');
                         }
                     }
-                } 
-                catch(Exception $e) {
+                } catch (Exception $e) {
                     $this->pmntUtils->log('Failed to initiate card payment using Paymennt, message : ' . $e->getMessage());
-                    wc_add_notice(__($failedPaymentTryAgainLater), 'error');
+                    wc_add_notice(__($failedPaymentTryAgainLater . " " . $e->getMessage()), 'error');
                 }
-            }
-            else{
+            } else {
                 $this->pmntUtils->log('Failed to initiate card payment using Paymennt. "Token" is empty');
-                    wc_add_notice(__($failedPaymentTryAgainLater), 'error');
+                wc_add_notice(__($failedPaymentTryAgainLater . "Unable to tokenize payment details."), 'error');
             }
-        }
-        else{
+        } else {
 
             try {
-            $result   = $this->paymentService->postOrderToPaymennt();
-            
-            $note = $this->paymentService->getOrderHistoryMessage($result->id, 0, $result->status, '');
-            $order->add_order_note($note);
-            
+                $result   = $this->paymentService->postOrderToPaymennt();
+
+                $note = $this->paymentService->getOrderHistoryMessage($result->id, 0, $result->status, '');
+                $order->add_order_note($note);
+
                 WC()->session->set('checkoutId', $result->id);
                 return array(
                     'result' => 'success',
                     'redirect' => $result->redirectUrl
                 );
-            }
-            catch(Exception $e) {
+            } catch (Exception $e) {
                 $this->pmntUtils->log('Failed to initiate card payment using Paymennt, message : ' . $e->getMessage());
-                wc_add_notice(__($failedPaymentTryAgainLater), 'error');
+                wc_add_notice(__($failedPaymentTryAgainLater . " " . $e->getMessage()), 'error');
             }
         }
     }
 
     public function process_response()
-    {   
+    {
         global $woocommerce;
-        //send the secound call to paymennt to confirm payment
+        //send the second call to paymennt to confirm payment
         $success = $this->paymentService->checkPaymentStatus();
 
         $order = wc_get_order($_REQUEST['reference']);
         if ($success['success']) {
             $order->payment_complete();
             WC()->session->set('refresh_totals', true);
+            WC()->cart->empty_cart();
             $redirectUrl = $this->get_return_url($order);
         } else {
             $redirectUrl = esc_url(wc_get_checkout_url());
             $order->update_status('cancelled');
             wc_add_notice(__('Failed to process payment please try again later'), 'error');
         }
-        echo '<script>window.top.location.href = "' . esc_url($redirectUrl). '"</script>';
+        echo '<script>window.top.location.href = "' . esc_url($redirectUrl) . '"</script>';
         exit;
     }
 }

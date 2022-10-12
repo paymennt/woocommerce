@@ -76,12 +76,15 @@ let loadPaymenntFrame = function () {
   }
 };
 
-jQuery(document.body).on("updated_checkout", function () {
-  var cardFrame = document.querySelector(".card-frame");
-  if (cardFrame.childElementCount < 1) {
-    loadPaymenntFrame();
+jQuery(document.body).on(
+  "updated_checkout payment_method_selected",
+  function () {
+    var cardFrame = document.querySelector(".card-frame");
+    if (cardFrame.childElementCount < 1) {
+      loadPaymenntFrame();
+    }
   }
-});
+);
 
 jQuery(document.querySelector("#payment_method_paymennt_card")).on(
   "load",
