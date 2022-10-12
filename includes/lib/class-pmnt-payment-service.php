@@ -326,7 +326,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
 
     private function ceilAmount($amount) {
         if(isset($amount)) {
-        return round(ceil($amount * 100) / 100, 2);
+            return round(ceil($amount * 100) / 100, 2);
         } else {
             return $amount;
         }

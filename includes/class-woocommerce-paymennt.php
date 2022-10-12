@@ -41,14 +41,12 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         }
     }
 
-    function add_paymennt_card_scripts()
-    {
+    function add_paymennt_card_scripts() {
         wp_enqueue_script('paymennt-frame-js',  'https://pay.paymennt.com/static/js/paymennt-frames.js', true);
         wp_enqueue_script('paymennt-checkout-script', plugins_url('/../assets/js/paymennt_checkout.js', __FILE__), true);
     }
 
-    function add_paymennt_card_styles()
-    {
+    function add_paymennt_card_styles() {
         wp_enqueue_style('paymennt-checkout-styles', plugins_url('/../assets/css/styles.css', __FILE__));
     }
 
