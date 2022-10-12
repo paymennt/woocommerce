@@ -332,7 +332,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
             echo wpautop(wp_kses_post(sprintf(
                 __('TEST MODE ENABLED. You can use test cards only. ' .
                 'See the <a href="%s" target="_blank">Paymennt WooCommerce Guide</a> for more details.', 'woocommerce'),
-                'https://docs.paymennt.com/docs/integrate/ecomm/woocommerce'
+                'https://docs.paymennt.com/docs/payment/ecomm/woocommerce'
             )));
         }
     }
