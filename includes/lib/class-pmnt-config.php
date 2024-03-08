@@ -17,6 +17,9 @@ class Paymennt_Config extends Paymennt_Card_Parent
     private $public_key;
     public $description;
     public $title;
+    public $language;
+    public $command;
+
 
 
     public function __construct()

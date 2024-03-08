@@ -1,6 +1,6 @@
 <?php
  
-define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.0.6');
+define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.1.0');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
 class Paymennt_Card_Payment extends Paymennt_Card_Parent
@@ -38,10 +38,10 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
         $order->update_status($this->pmntConfig->getNewOrderStatus());
 
         // ORDER INFO
-        $request->requestId  =$orderId;
-        $request->orderId =  $orderId;
+        $request->requestId= $orderId . '-' . date('YmdHi');
+        $request->orderId= $orderId;
         
-        $request->allowedPaymentMethods = ['CARD'];
+        // $request->allowedPaymentMethods = ['CARD'];
         $request->returnUrl= get_site_url() . '?wc-api=wc_card_paymennt_process_response';
 
         // CURRENCY AND AMOUNT

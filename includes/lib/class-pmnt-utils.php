@@ -4,6 +4,7 @@ class Paymennt_Utils extends Paymennt_Card_Parent
 {
 
     private $pmntConfig;
+    private $pmntOrder;
 
     public function __construct()
     {
@@ -15,7 +16,8 @@ class Paymennt_Utils extends Paymennt_Card_Parent
     public function log($messages)
     {
         $logger = wc_get_logger();
-        $logger->error($messages, 'paymennt_card');
+        $messageStr = is_string($messages) ? $messages : var_export($messages, true);
+        $logger->error($messageStr, ['source' => 'paymennt']);
     }
 
     public function getApiBaseUrl()
