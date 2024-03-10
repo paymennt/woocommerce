@@ -430,7 +430,7 @@ class WC_Card_Paymennt extends Paymennt_Card_Parent
         //send the second call to paymennt to confirm payment
         $success = $this->paymentService->checkPaymentStatus();
 
-        $order = wc_get_order($_REQUEST['reference']);
+        $order = wc_get_order($this->pmntUtils->extractOrderId($_REQUEST['reference']));
         if ($success['success']) {
             $order->payment_complete();
             WC()->session->set('refresh_totals', true);

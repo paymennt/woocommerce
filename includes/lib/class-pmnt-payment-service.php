@@ -1,6 +1,6 @@
 <?php
  
-define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.1.0');
+define('PMNT_EXT_VERSION', 'WooCommerce-Paymennt-3.1.1');
 require_once __DIR__ . '/../sdk/vendor/autoload.php';
 
 class Paymennt_Card_Payment extends Paymennt_Card_Parent
@@ -186,7 +186,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
 
     public function getCheckout()
     {
-        WC()->session->set('pointCheckoutCurrentOrderId', $_REQUEST['reference']);
+        WC()->session->set('pointCheckoutCurrentOrderId', $this->pmntUtils->extractOrderId($_REQUEST['reference']));
         
         $client = new \Paymennt\PaymenntClient(
             $this->pmntConfig->getApiKey(), //
@@ -203,7 +203,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
 
     public function captureAuthorizedPayment($paymentId)
     {
-        $order = new WC_Order($_REQUEST['reference']);
+        $order = new WC_Order($this->pmntUtils->extractOrderId($_REQUEST['reference']));
         
         $client = new \Paymennt\PaymenntClient(
             $this->pmntConfig->getApiKey(), //
@@ -221,7 +221,7 @@ class Paymennt_Card_Payment extends Paymennt_Card_Parent
     public function checkPaymentStatus()
     {
        
-        $order = new WC_Order($_REQUEST['reference']);
+        $order = new WC_Order($this->pmntUtils->extractOrderId($_REQUEST['reference']));
 
         if (!empty($order)) {
             try {

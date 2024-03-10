@@ -41,4 +41,28 @@ class Paymennt_Utils extends Paymennt_Card_Parent
             return 'https://admin.test.paymennt.com';
         }
     }
+
+    function extractOrderId($orderReference) {
+        // Check if the orderReference string contains any hyphens
+        if (strpos($orderReference, '-') === false) {
+            return $orderReference; // Return the orderReference string as is if no hyphens are found
+        }
+
+        // Split the orderReference string into an array using "-" as the delimiter
+        $parts = explode("-", $orderReference);
+
+        // Check if the last part consists of 12 digits
+        $lastPart = end($parts); // Get the last part of the parts array
+        if (!is_numeric($lastPart) || strlen($lastPart) != 12) {
+            return $orderReference; // Return the orderReference string as is if the last part does not consist of 12 digits
+        }
+
+        // Remove the last element from the array
+        $partsWithoutLast = array_slice($parts, 0, -1);
+
+        // Combine the array back into a string using "-" as the separator
+        $result = implode("-", $partsWithoutLast);
+
+        return $result;
+    }
 }
